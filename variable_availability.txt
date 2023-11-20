@@ -1,0 +1,36 @@
+From Opensky:
+
+Raw data, updated until September 2023, contains the following:
+
+Index(['time', 'icao24', 'lat', 'lon', 'velocity', 'heading', 'vertrate',     
+        'callsign', 'onground', 'alert', 'spi', 'squawk', 'baroaltitude',      
+        'geoaltitude', 'lastposupdate', 'lastcontact', 'hour'],
+       dtype='object') 
+
+GICB data picks up transponder messages and will contain the following messages:
+
+05   Extended squitter airborne position             
+06   Extended squitter surface position              
+07   Extended squitter status                        
+08   Extended squitter identification and category   
+09   Extended squitter airborne velocity information 
+0A   Extended squitter event-driven information      
+20   Aircraft identification                         
+21   Aircraft registration number                    
+40   Selected vertical intention                     
+41   Next waypoint identifier                        
+42   Next waypoint position                          
+43   Next waypoint information                       
+44   Meteorological routine report                   
+45   Meteorological hazard report                    
+48   VHF channel report                              
+50   Track and turn report                           
+51   Position coarse                                 
+52   Position fine                                   
+53   Air-referenced state vector                     
+54   Waypoint 1                                      
+55   Waypoint 2                                      
+56   Waypoint 3                                      
+5F   Quasi-static parameter monitoring               
+60   Heading and speed report        
+
