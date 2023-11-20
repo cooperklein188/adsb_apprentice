@@ -4,43 +4,28 @@ import geopandas as gpd
 from shapely.geometry import Point, Polygon
 import matplotlib.pyplot as plt
 
-
+#opening the Impala shell
 impala = Impala()
 
-'''18 columns!!!'''
-# Index(['time', 'icao24', 'lat', 'lon', 'velocity', 'heading', 'vertrate',     
-#        'callsign', 'onground', 'alert', 'spi', 'squawk', 'baroaltitude',      
-#        'geoaltitude', 'lastposupdate', 'lastcontact', 'hour'],
-#       dtype='object') 
-
-# #day 1: 12/1/2020
+'''example query to find a specific airport'''
 # df1 = impala.history(start = 1606842000, stop = 1606842005, airport= "LLBG")
 
-# #day 2: 12/2/2020
-# df2 = impala.history(start = 1606928400, stop = 1606928405, airport= "LLBG")
-
+'''query to find all flights in a timeframe (2 seconds)'''
 df1 = impala.history(start = 1493632800, stop = 1493632802)
-#2 seconds will offer every point without repetition
 
-# df2 = impala.history(start = 1543770000, stop = 1543770030)
-
-def loc(df, lat, lon, buff):
+'''function that takes coordinate bounds (latitude, longitude and a radius from this point) and creates a GeoDataFrame with the points in the respective time'''
+def loc(df, lat, lon, radius):
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['lon'], df['lat']))
 
     # Create a GeoSeries with the target point
     target_point = gpd.GeoSeries([Point(lon, lat)], crs=gdf.crs)
-    buffered_target_point = target_point.buffer(buff)  # 1 degree of latitude is approximately 69 miles
+    buffered_target_point = target_point.buffer(radius)  # 1 degree of latitude is approximately 69 miles
     # Use spatial query to find points within 5 miles
     points = gdf[gdf.geometry.within(buffered_target_point.unary_union)]
 
     return points
 
-# print(loc(df1, 59.706024, 30.775085))
-# df1Filt = loc(df1, 31.7683, 35.2137, 3) #buffer of 1 will be within 69 miles of jerusalem
-# df1Filt = loc(df1, 48.3794, 32.5000,15)
-
-# df2Filt = loc(df2, 31.7683, 35.2137, 1) #buffer of 1 will be within 69 miles of jerusalem
-
+'''function will take a dataframe with points and a map, it will return the points on the map. If the map is too small, the plot will expand to show points outside the map'''
 def plotAirplanes(df, map):
     area = gpd.read_file(map)
     geometry = [Point(xy) for xy in zip(df['lon'], df['lat'])]
@@ -59,14 +44,7 @@ def plotAirplanes(df, map):
     plt.show()
 
 
-# plotAirplanes(df1Filt , 'ukraine-detailed-boundary_1059.geojson', )
-
-# plotAirplanes(df1Filt , 'israel-detailed-boundary_942.geojson', )
-# plotAirplanes(df2Filt , 'israel-detailed-boundary_942.geojson', )
-
-
-
-'''example with specified range'''
+'''This function does the same as the loc function. However, the loc function returned points within a radius of a coordinate while this returns points within the boxed limits of latitude and longitude'''
 
 def plotAirplaneRange(df, map, min_lon, max_lon, min_lat, max_lat):
     area = gpd.read_file(map)
@@ -88,7 +66,7 @@ def plotAirplaneRange(df, map, min_lon, max_lon, min_lat, max_lat):
 
     plt.show()
 
-
+'''This function finds the specific number of points within the respective region at a given time'''
 def findAirNum(df, min_lon, max_lon, min_lat, max_lat):
     geometry = [Point(xy) for xy in zip(df['lon'], df['lat'])]
     gdf = gpd.GeoDataFrame(df, geometry=geometry)
@@ -100,6 +78,12 @@ def findAirNum(df, min_lon, max_lon, min_lat, max_lat):
     return (len(filtered_points))
     # return airNum
 
+#example of finding points and returning map on map of Ukraine
+df1Filt = loc(df1, 48.3794, 32.5000,15)
+plotAirplanes(df1Filt , 'ukraine-detailed-boundary_1059.geojson', )
+
+
+#example of compiling points to make a histogram
 res = {}
 for i in range(7):
     df = impala.history(start = int("16" + str(2+i) + "1812000"), stop = int("16" + str(2+i) + "1812002"))
